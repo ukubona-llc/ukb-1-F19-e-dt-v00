@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ukb-1-F19-e-dt-v02</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111;
+    --border: #2a2a2a;
+    --accent: #c8a96e;
+    --accent2: #7ecac3;
+    --text: #e0ddd8;
+    --muted: #6b6866;
+    --danger: #c0392b;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Playfair Display', Georgia, serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.75;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0,0,0,0.08) 3px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 32px 100px;
+  }
+
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .header-prompt {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  /* Embed */
+  .embed-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 32px 0;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.1s forwards;
+  }
+
+  .embed-wrap iframe {
+    border: 1px solid var(--border);
+    box-shadow: 0 0 40px rgba(200,169,110,0.08);
+  }
+
+  /* Classification badge */
+  .classification {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    background: rgba(200,169,110,0.06);
+    border: 1px solid rgba(200,169,110,0.25);
+    padding: 10px 20px;
+    margin: 32px 0 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .classification::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(200,169,110,0.12), transparent);
+    animation: shimmer 3s ease infinite;
+  }
+
+  .classification-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    padding-left: 4px;
+  }
+
+  /* Body text */
+  p {
+    color: var(--text);
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  /* H3 headers */
+  h3 {
+    font-family: var(--serif);
+    font-size: 20px;
+    color: var(--accent2);
+    margin: 48px 0 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.01em;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  /* Breakdown list */
+  .breakdown {
+    list-style: none;
+    margin: 0 0 32px;
+  }
+
+  .breakdown li {
+    padding: 12px 0 12px 0;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 16px;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .breakdown li:last-child { border-bottom: none; }
+
+  .tag {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 13px;
+    padding-top: 1px;
+  }
+
+  .breakdown li span { color: var(--text); }
+  .breakdown li span strong { color: var(--accent2); font-weight: 600; }
+
+  /* TMVES table */
+  .tmves {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0 40px;
+    font-size: 13px;
+  }
+
+  .tmves thead tr {
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .tmves th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .tmves td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .tmves tr:last-child td { border-bottom: none; }
+
+  .tmves td:first-child {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .tmves td:nth-child(2) {
+    color: var(--accent2);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .tmves tr {
+    opacity: 0;
+    animation: fadeUp 0.4s ease forwards;
+    transition: background 0.2s;
+  }
+
+  .tmves tr:hover { background: rgba(200,169,110,0.04); }
+
+  /* Loss function callout */
+  .callout {
+    background: rgba(192,57,43,0.08);
+    border-left: 3px solid var(--danger);
+    padding: 16px 20px;
+    margin: 32px 0;
+    font-size: 13px;
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .callout strong { color: var(--danger); }
+
+  /* Match section */
+  .match-box {
+    background: rgba(126,202,195,0.05);
+    border: 1px solid rgba(126,202,195,0.2);
+    padding: 24px;
+    margin: 24px 0 40px;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .match-box p { opacity: 1; animation: none; margin-bottom: 0; }
+  .match-box p + p { margin-top: 12px; }
+
+  /* CTA */
+  .cta {
+    background: rgba(200,169,110,0.05);
+    border: 1px solid rgba(200,169,110,0.15);
+    padding: 24px;
+    margin-top: 48px;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 13px;
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  /* Links */
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(200,169,110,0.3);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  a:hover {
+    color: #e8c98e;
+    border-color: var(--accent);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shimmer {
+    0%   { left: -100%; }
+    50%  { left: 150%; }
+    100% { left: 150%; }
+  }
+
+  /* Stagger helper via JS */
+  [data-delay] { animation-delay: var(--d, 0s); }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="header">
+    <div class="label">Ukubona Digital Twin Catalog</div>
+    <p class="header-prompt">
+      How'd you classify the topic here?
+      <a href="https://www.youtube.com/shorts/wARj6kLYzkE" target="_blank">https://www.youtube.com/shorts/wARj6kLYzkE</a>
+      using <a href="https://ukubona-llc.github.io/catalog/" target="_blank">https://ukubona-llc.github.io/catalog/</a>
+      and a related example
+      <a href="https://ukubona-llc.github.io/ukb-1-F19-e-dt-v01/" target="_blank">https://ukubona-llc.github.io/ukb-1-F19-e-dt-v01/</a>
+    </p>
+  </div>
+
+  <div class="embed-wrap">
+    <iframe width="315" height="560"
+      src="https://www.youtube.com/embed/wARj6kLYzkE"
+      title="YouTube Shorts"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen></iframe>
+  </div>
+
+  <p>
+    The topic of the YouTube Short (Megyn Kelly discussing Tiger Woods' latest DUI arrest after a car crash, framed as a "pattern" of self-destructive behavior tied to childhood parental pressure, narcotics use, and repeated impairment-related incidents) classifies cleanly under the Ukubona Digital Twin Naming Convention.
+  </p>
+
+  <p>
+    It maps directly to the same structure as the related example you linked (<strong>ukb-1-F19-e-dt-v01</strong>).
+  </p>
+
+  <h3>Proposed Classification for This Video's Topic</h3>
+
+  <div class="classification">ukb-1-F19-e-dt-v02</div>
+  <div class="classification-sub">
+    (Scale 1 · Person-level | Domain F19 · Mental and behavioral disorders due to multiple drug use and psychoactive substances | Node E · Eigenmode | Digital Twin | Version 02 – updated public-instance variant of the example)
+  </div>
+
+  <h3>Breakdown (Mirroring the Catalog and Example Exactly)</h3>
+
+  <ul class="breakdown">
+    <li>
+      <span class="tag">ukb</span>
+      <span>Ukubona prefix (Digital Twin catalog).</span>
+    </li>
+    <li>
+      <span class="tag">1</span>
+      <span>Scale 1: <strong>Person</strong> (individual-level analysis focused on a specific high-profile athlete's behavioral trajectory, not network/system/policy/civilization).</span>
+    </li>
+    <li>
+      <span class="tag">F19</span>
+      <span>ICD-10 domain: <strong>Mental and behavioral disorders due to multiple drug use and use of other psychoactive substances</strong>.<br><br>
+      This fits the video's core subject: Woods' pattern of turning to narcotics/pain meds (post-injuries from over-pushing), leading to impaired driving, crashes, and DUI arrest — explicitly non-alcohol in the narrative (similar to the example's "pain-med cascade" with breathalyzer 0.00 but clear impairment).</span>
+    </li>
+    <li>
+      <span class="tag">e</span>
+      <span><strong>Eigenmode (E-node)</strong>: Posterior identity extraction and trajectory protection.<br><br>
+      The video is not raw evidence (V) or a decision (S); it performs eigenmode analysis — dissecting the "pattern," the identity conflict ("Essential Athlete / golf legend" vs. "self-destructive / addict-in-denial" attractor state), and the long-term drift caused by childhood pressure ("pushed… beyond the bounds," "childhood was not an option"). It warns of narrative foreclosure and risk to self/others, exactly as the example protects the "Essential Athlete" eigenmode.</span>
+    </li>
+    <li>
+      <span class="tag">dt</span>
+      <span>Digital Twin: Computational representation of the clinical-behavioral state (here, the public discourse + incident telemetry + biographical priors compressed into a navigable "pattern" model).</span>
+    </li>
+    <li>
+      <span class="tag">v02</span>
+      <span>Version 02: Updated instantiation reflecting the new 2026 incident layered on prior history (2021 rollover, earlier events), building on the v01 example.</span>
+    </li>
+  </ul>
+
+  <h3>TMVES Inference Chain (Pentad) Applied to the Video Topic</h3>
+
+  <p>This mirrors the example's reasoning step-by-step:</p>
+
+  <table class="tmves">
+    <thead>
+      <tr>
+        <th>Node</th>
+        <th>Label</th>
+        <th>Application</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>T</td>
+        <td>Tensor – Prior</td>
+        <td>High and compounding — childhood "Winner's Ethos" pressure from father (Earl Woods), relentless golf pushing, no childhood option, early fame → baseline curvature toward narcotics use after injuries.</td>
+      </tr>
+      <tr>
+        <td>M</td>
+        <td>Matrix – Likelihood</td>
+        <td>Compression of multimodal signals — crash telemetry, visible impairment, rehab history, public records — into the "pattern" (not alcohol, but pain-med cascade).</td>
+      </tr>
+      <tr>
+        <td>V</td>
+        <td>Vector – Evidence / Governance Wall</td>
+        <td>Recent DUI arrest + car crash as new data point; potential missing data (e.g., exact toxicology) but non-invasive priors (gait, history, Megyn Kelly's breakdown) suffice.</td>
+      </tr>
+      <tr>
+        <td>E</td>
+        <td>Eigenmode – Posterior Identity</td>
+        <td>Core of the video — identity drift analysis: unmatched golf success at 50 vs. repeated self-endangerment and endangerment of others. Goal: protect the athletic eigenmode before catastrophic foreclosure.</td>
+      </tr>
+      <tr>
+        <td>S</td>
+        <td>Scalar – Decision</td>
+        <td>Implicit warning (no explicit "what to do" but clear: pattern must break; parallels example's "Car Service" protocol / pre-commitment to avoid infinite-consequence λᵢ events).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Loss-function dominance:</strong> λᵢ (rare but catastrophic crash risk) dominates, just like the example — aviation-style reasoning applied to the "total car crash actually and metaphorically."
+  </div>
+
+  <h3>Why This Is a Near-Perfect Match to the Example</h3>
+
+  <div class="match-box">
+    <p>
+      The example (<strong>ukb-1-F19-e-dt-v01</strong>) models exactly this archetype: high-achieving individual with substance-related impairment → multiple vehicular incidents (2017, 2021, 2025 in the example; 2021 + 2026 here) → identity conflict (athlete vs. denial) → eigenmode protection. The video is essentially public commentary performing the same eigenmode twin analysis on Tiger Woods as the canonical real-world instance of F19 at scale 1.
+    </p>
+    <p>
+      The only difference is the public visibility and media framing, which upgrades it to v02 while staying in the identical ontological slot.
+    </p>
+  </div>
+
+  <div class="cta">
+    If you want a full twin page generated in the same style as the example link (with loss gradients, Ulysses invariant, etc.), or classification at a different scale/node (e.g., scale 2 for "athlete network" or scale 0-method-tmves for the analytical method itself), just say the word and I'll build it. This is a textbook Ukubona classification.
+  </div>
+
+</div>
+
+<script>
+  // Stagger all animated elements
+  document.querySelectorAll('p, h3, li, tr, .callout, .match-box, .cta, .classification, .classification-sub, .embed-wrap, .header').forEach((el, i) => {
+    const base = parseFloat(el.style.animationDelay) || 0;
+    el.style.animationDelay = (i * 0.045) + 's';
+  });
+</script>
+</body>
+</html>
